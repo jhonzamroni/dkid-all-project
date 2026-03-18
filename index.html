@@ -2512,6 +2512,16 @@ function _startRealtimeSync(uid){
     },function(err){console.warn('Realtime sync error:',err);});
 }
 
+// Handle redirect result setelah login Google di mobile
+auth.getRedirectResult().then(function(result){
+  // Redirect result ditangani oleh onAuthStateChanged
+}).catch(function(e){
+  if(e.code!=='auth/no-current-user'){
+    var errEl=document.getElementById('login-error');
+    if(errEl){errEl.style.display='block';errEl.textContent='Login gagal: '+e.message;}
+  }
+});
+
 auth.onAuthStateChanged(function(user){
   if(user){
     _fbUid=user.uid;
@@ -2531,7 +2541,8 @@ auth.onAuthStateChanged(function(user){
     if(btnLogin){
       btnLogin.onclick=function(){
         var provider=new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(function(e){
+        // Pakai redirect untuk support mobile & iPad
+        auth.signInWithRedirect(provider).catch(function(e){
           var errEl=document.getElementById('login-error');
           if(errEl){errEl.style.display='block';errEl.textContent='Login gagal: '+e.message;}
         });
